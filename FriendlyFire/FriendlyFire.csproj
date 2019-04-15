@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{502FD625-3728-454A-971B-39BC25F517E1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FriendlyFire</RootNamespace>
+    <AssemblyName>FriendlyFire</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Prefix_Projectile_Explode.cs" />
+    <Compile Include="Prefix_TargetingSystem_InitTargetableFaction.cs" />
+    <Compile Include="Prefix_TargetingSystem_IsTargetable.cs" />
+    <Compile Include="Prefix_ConeBlast_Hit.cs" />
+    <Compile Include="FriendlyFire.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\SteamApps\common\Outward\ModDependencies\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\SteamApps\common\Outward\Outward_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\SteamApps\common\Outward\Outward_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\SteamApps\common\Outward\bin\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\SteamApps\common\Outward\bin\MonoMod.exe</HintPath>
+    </Reference>
+    <Reference Include="Partiality">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\SteamApps\common\Outward\bin\Partiality.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\SteamApps\common\Outward\Outward_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>SET APPID=794260
+echo AppID: %25APPID%25
+SET command=%25systemroot%25\sysnative\WindowsPowerShell\v1.0\powershell.exe -command "Get-ItemPropertyValue 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App %25APPID%25' -Name InstallLocation" 
+for /f "tokens=*" %25%25i in ('%25command%25') do set installPath=%25%25i
+echo InstallPath: "%25installPath%25"
+SET buildMods=..\..\..\..\Mods
+echo copying $(TargetFileName) to "%25buildMods%25"
+copy $(TargetFileName) "%25buildMods%25"
+echo copying "%25buildMods%25\*" to "%25installPath%25\Mods"
+copy "%25buildMods%25\*" "%25installPath%25\Mods"
+powershell.exe -nologo -noprofile -command "gci ..\..\..\..\..\$(ProjectName) | ? Name -NE source | Compress-Archive -DestinationPath ..\..\..\..\$(ProjectName).zip"
+powershell.exe -nologo -noprofile -command "Compress-Archive -Path ..\..\..\..\..\$(ProjectName)\Mods,..\..\..\..\..\$(ProjectName)\ModDependencies -DestinationPath ..\..\..\..\$(ProjectName)DllsOnly.zip"
+powershell.exe -nologo -noprofile -command "Compress-Archive -Path ..\..\..\..\..\$(ProjectName)\source -DestinationPath ..\..\..\..\$(ProjectName)Source.zip"</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>del ..\..\..\..\$(ProjectName).zip
+del ..\..\..\..\$(ProjectName)DllsOnly.zip
+del ..\..\..\..\$(ProjectName)Source.zip</PreBuildEvent>
+  </PropertyGroup>
+</Project>
